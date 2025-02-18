@@ -48,24 +48,23 @@ const SignupPage = () => {
             <div className="max-w-[69.5rem] w-[69.5rem] h-[28.75rem] rounded-3xl shadow-xl bg-white flex justify-between px-20 py-9 ">
                 {step === 6 ? (
                     <div className="flex justify-center w-full">
-                        <SignUpEnd 
-                        registData={registerData}
-                        onNext={(data: MemberInfoDTO) => {
-                            signup.mutate(
-                                { data, token: accessToken || '' },
-                                {
-                                    onSuccess: (response) => {
-                                        console.log(response);
+                        <SignUpEnd
+                            registData={registerData}
+                            onNext={(data: MemberInfoDTO) => {
+                                signup.mutate(
+                                    { data, token: accessToken || '' },
+                                    {
+                                        onSuccess: (response) => {
+                                            console.log(response);
+                                        },
+                                        onError: (error) => {
+                                            console.log(error);
+                                        },
                                     },
-                                    onError: (error) => {
-                                        console.log(error);
-                                    },
-                                },
-                            )
-                            navigate(PATH.INTRODUCTION);
-                        }
-                        }
-                            />
+                                );
+                                navigate(PATH.MAIN);
+                            }}
+                        />
                     </div>
                 ) : (
                     <>
