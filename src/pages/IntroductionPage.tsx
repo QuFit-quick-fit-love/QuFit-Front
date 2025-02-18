@@ -3,17 +3,17 @@ import LottieComponent from '@components/common/LottieComponent';
 import ShinningStar from '@assets/lottie/shiningStar.json';
 import { useNavigate } from 'react-router-dom';
 import { PATH } from '@routers/PathConstants';
-import { KAKAO_LOGIN_URL } from '@apis/ApiConstants';
-import { Link } from 'react-router-dom';
+// import { KAKAO_LOGIN_URL } from '@apis/ApiConstants';
+// import { Link } from 'react-router-dom';
 import useModal from '@hooks/useModal';
 import AlertModal from '@modals/AlertModal';
 import { useEffect } from 'react';
 import useIsPendingStore from '@stores/auth/isPendingStore';
-
+import { instance } from '@apis/axios';
 
 const IntroductionPage = () => {
     const navigate = useNavigate();
-    const {Modal, open, close } = useModal();
+    const { Modal, open, close } = useModal();
 
     const isPending = useIsPendingStore((state) => state.isPending);
 
@@ -22,6 +22,15 @@ const IntroductionPage = () => {
             open();
         }
     }, [isPending]);
+
+    const login = async (id: number) => {
+        try {
+            await instance.post('/qufit/auth/login', { id: id });
+            navigate(PATH.MAIN);
+        } catch (e) {
+            console.log(e);
+        }
+    };
 
     return (
         <div className="flex w-screen h-screen bg-black">
@@ -48,13 +57,27 @@ const IntroductionPage = () => {
                     Sign Up
                 </button>
                 <div className="w-1 h-8 mx-10 bg-smokeWhite" />
-                <Link to={KAKAO_LOGIN_URL}><button
+                {/* <Link to={KAKAO_LOGIN_URL}><button
     
                     className="text-3xl font-medium font-barlow text-smokeWhite"
                 >
                     <span className="text-yellow">Kakao</span> Log In
                 </button>
-                </Link>
+                </Link> */}
+                <div className="flex gap-4">
+                    <button className="bg-white" onClick={() => login(1)}>
+                        1번 로그인
+                    </button>
+                    <button className="bg-white" onClick={() => login(2)}>
+                        2번 로그인
+                    </button>
+                    <button className="bg-white" onClick={() => login(3)}>
+                        3번 로그인
+                    </button>
+                    <button className="bg-white" onClick={() => login(4)}>
+                        4번 로그인
+                    </button>
+                </div>
             </div>
             <LottieComponent
                 animationData={ShinningStar}
@@ -67,9 +90,9 @@ const IntroductionPage = () => {
                 className="absolute z-0 w-full h-full"
             />
 
-        <Modal>
-            <AlertModal contents={`아직 관리자가 승인하지 않았어요ㅜㅜ`} onClose={close}/>
-        </Modal>
+            <Modal>
+                <AlertModal contents={`아직 관리자가 승인하지 않았어요ㅜㅜ`} onClose={close} />
+            </Modal>
         </div>
     );
 };

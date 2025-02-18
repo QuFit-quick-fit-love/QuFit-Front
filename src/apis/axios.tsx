@@ -1,4 +1,4 @@
-import { HTTP_STATUS, KAKAO_LOGIN_URL } from '@apis/ApiConstants';
+// import { HTTP_STATUS, KAKAO_LOGIN_URL } from '@apis/ApiConstants';
 import axios from 'axios';
 import qs from 'qs';
 
@@ -24,12 +24,10 @@ if (window.location.hostname === 'localhost') {
         // accessToken = qufitAcessTokenC;
         // localStorage.setItem('accessToken', qufitAcessTokenC);
         useTokenStore.getState().setAccessToken(qufitAcessTokenC);
-
     } else if (location.port === '3003') {
         // accessToken = qufitAcessTokenD;
         // localStorage.setItem('accessToken', qufitAcessTokenD);
         useTokenStore.getState().setAccessToken(qufitAcessTokenD);
-
     } else {
         // accessToken = qufitAcessTokenA;
         // localStorage.setItem('accessToken', qufitAcessTokenA);
@@ -41,6 +39,7 @@ if (window.location.hostname === 'localhost') {
 }
 export const instance = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL,
+    withCredentials: true,
     // headers: {
     //     Authorization: 'Bearer ' + accessToken,
     // },
@@ -73,17 +72,17 @@ instance.interceptors.request.use(
     () => {},
 );
 
-instance.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-    async (error) => {
-        if (
-            error.response.status === HTTP_STATUS.UNAUTHORIZED &&
-            error.response.data.message === '토큰이 만료되었습니다.'
-        ) {
-            location.href = KAKAO_LOGIN_URL;
-            //TODO:로그인 로직 성공하면 토큰 다시 넣어야함.
-        }
-    },
-);
+// instance.interceptors.response.use(
+//     (response) => {
+//         return response;
+//     },
+//     async (error) => {
+//         if (
+//             error.response.status === HTTP_STATUS.UNAUTHORIZED &&
+//             error.response.data.message === '토큰이 만료되었습니다.'
+//         ) {
+//             location.href = KAKAO_LOGIN_URL;
+//             //TODO:로그인 로직 성공하면 토큰 다시 넣어야함.
+//         }
+//     },
+// );
