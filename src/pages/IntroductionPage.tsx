@@ -25,7 +25,7 @@ const IntroductionPage = () => {
 
     const login = async (id: number) => {
         try {
-            const response = await instance.post('/qufit/auth/login', { id: id });
+            await instance.post('/qufit/auth/login', { id: id });
             navigate(PATH.MAIN);
         } catch (e) {
             console.log(e);
