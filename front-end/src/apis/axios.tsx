@@ -10,29 +10,29 @@ import { useTokenStore } from '@stores/auth/tokenStore';
 
 //로그인을 하고 해야하는 API
 
-// let accessToken = '';
+let accessToken = '';
 if (window.location.hostname === 'localhost') {
-    if (location.port === '3000') {
-        // accessToken = qufitAcessTokenA;
-        useTokenStore.getState().setAccessToken(qufitAcessTokenA);
-        // localStorage.setItem('accessToken', qufitAcessTokenA);
-    } else if (location.port === '3001') {
-        // accessToken = qufitAcessTokenB;
-        // localStorage.setItem('accessToken', qufitAcessTokenB);
-        useTokenStore.getState().setAccessToken(qufitAcessTokenB);
-    } else if (location.port === '3002') {
-        // accessToken = qufitAcessTokenC;
-        // localStorage.setItem('accessToken', qufitAcessTokenC);
-        useTokenStore.getState().setAccessToken(qufitAcessTokenC);
-    } else if (location.port === '3003') {
-        // accessToken = qufitAcessTokenD;
-        // localStorage.setItem('accessToken', qufitAcessTokenD);
-        useTokenStore.getState().setAccessToken(qufitAcessTokenD);
-    } else {
-        // accessToken = qufitAcessTokenA;
-        // localStorage.setItem('accessToken', qufitAcessTokenA);
-        useTokenStore.getState().setAccessToken(qufitAcessTokenA);
-    }
+    // if (location.port === '3000') {
+    //     accessToken = qufitAcessTokenA;
+    //     useTokenStore.getState().setAccessToken(qufitAcessTokenA);
+    //     localStorage.setItem('accessToken', qufitAcessTokenA);
+    // } else if (location.port === '3001') {
+    //     accessToken = qufitAcessTokenB;
+    //     localStorage.setItem('accessToken', qufitAcessTokenB);
+    //     useTokenStore.getState().setAccessToken(qufitAcessTokenB);
+    // } else if (location.port === '3002') {
+    //     accessToken = qufitAcessTokenC;
+    //     localStorage.setItem('accessToken', qufitAcessTokenC);
+    //     useTokenStore.getState().setAccessToken(qufitAcessTokenC);
+    // } else if (location.port === '3003') {
+    //     accessToken = qufitAcessTokenD;
+    //     localStorage.setItem('accessToken', qufitAcessTokenD);
+    //     useTokenStore.getState().setAccessToken(qufitAcessTokenD);
+    // } else {
+    //     accessToken = qufitAcessTokenA;
+    //     localStorage.setItem('accessToken', qufitAcessTokenA);
+    //     useTokenStore.getState().setAccessToken(qufitAcessTokenA);
+    // }
 } else {
     // accessToken = localStorage.getItem('accessToken') || '';
     useTokenStore.getState().accessToken || '';
@@ -40,9 +40,9 @@ if (window.location.hostname === 'localhost') {
 export const instance = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL,
     withCredentials: true,
-    // headers: {
-    //     Authorization: 'Bearer ' + accessToken,
-    // },
+    headers: {
+        Authorization: 'Bearer ' + accessToken,
+    },
     paramsSerializer: (params) => {
         return qs.stringify(params, { arrayFormat: 'repeat' });
     },
@@ -63,9 +63,13 @@ export const defaultInstance = axios.create({
 
 instance.interceptors.request.use(
     (config) => {
-        const token = useTokenStore.getState().accessToken;
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        // const token = useTokenStore.getState().accessToken;
+        // if (token) {
+        //     config.headers.Authorization = `Bearer ${token}`;
+        // }
+        const accessToken = localStorage.getItem('accessToken');
+        if (accessToken) {
+            config.headers.Authorization = `Bearer ${accessToken}`;
         }
         return config;
     },

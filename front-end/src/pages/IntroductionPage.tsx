@@ -25,7 +25,9 @@ const IntroductionPage = () => {
 
     const login = async (id: number) => {
         try {
-            await instance.post('/qufit/auth/login', { id: id });
+            const response = await instance.post('/qufit/auth/login', { id: id });
+            // console.log(response.data.accessToken);
+            localStorage.setItem('accessToken', response.data.accessToken);
             navigate(PATH.MAIN);
         } catch (e) {
             console.log(e);

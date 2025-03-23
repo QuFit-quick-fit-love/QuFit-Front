@@ -2,15 +2,15 @@ import { useRoomParticipantsStore, useSetRoomIdStore } from '@stores/video/roomS
 import useRoom from '@hooks/useRoom';
 import ParticipantVideo from '@components/video/ParticipantVideo';
 import { useEffect, useRef, useState } from 'react';
-import { Outlet, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { afterSubscribe, connect, disConnect, publishSocket } from '@utils/websocketUtil';
 import * as StompJs from '@stomp/stompjs';
-import VideoChatBox from '@components/video/VideoChatBox';
+import MeetingStartButton from '@components/game/MeetingStartButton';
+import { PATH } from '@routers/PathConstants';
 
-const GroupVideoLayout = () => {
+const VideoWaitPage = () => {
     // const roomMax = useRoomMaxStore();
-    const roomMax = 8;
     const { otherGenderSetting } = useRoom();
     const [isMeetingStart, setIsMeetingStart] = useState(false);
     const participants = useRoomParticipantsStore();
@@ -18,7 +18,7 @@ const GroupVideoLayout = () => {
     const setRoomId = useSetRoomIdStore();
     const navigate = useNavigate();
 
-    const client = useRef<StompJs.Client | null>(null);
+    // const client = useRef<StompJs.Client | null>(null);
     // const onConnect = () => {
     //     client.current?.subscribe(`/sub/game/${roomId}`, (message) => {
     //         const response = JSON.parse(message.body);
@@ -30,23 +30,23 @@ const GroupVideoLayout = () => {
     //     });
     // };
 
-    const startMeeting = () => {
-        publishSocket(
-            {
-                isRoomStart: true,
-            },
-            client,
-            Number(roomId),
-        );
-        // otherGenderSetting();
-    };
-    ``;
+    // const startMeeting = () => {
+    //     publishSocket(
+    //         {
+    //             isRoomStart: true,
+    //         },
+    //         client,
+    //         Number(roomId),
+    //     );
+    //     // otherGenderSetting();
+    // };
+    // ``;
 
-    useEffect(() => {
-        setRoomId(Number(roomId)); //나중에 param에서 따와야함
-        // connect(client, onConnect);
-        return () => disConnect(client);
-    }, []);
+    // useEffect(() => {
+    //     setRoomId(Number(roomId)); //나중에 param에서 따와야함
+    //     connect(client, onConnect);
+    //     return () => disConnect(client);
+    // }, []);
     const [render, setRender] = useState(10);
     const [timerId, setTimerId] = useState<NodeJS.Timeout | null>(null);
 
@@ -83,24 +83,17 @@ const GroupVideoLayout = () => {
     // }, [render]);
 
     return (
-        <div className="flex flex-col justify-between h-screen">
-            <div className="flex-shrink-0">
-                <ParticipantVideo roomMax={roomMax!} gender="m" status="wait" participants={participants} />
-            </div>
-            <div className="flex items-center justify-between flex-grow gap-7">
-                <div className="border w-[916px] max-w-[916px] h-[496px] flex flex-grow justify-center items-center">
-                    <Outlet />
-                </div>
-                <VideoChatBox />
-            </div>
-            <div className="flex-shrink-0">
-                <ParticipantVideo participants={participants} roomMax={roomMax!} gender="f" status="wait" />
-            </div>
-        </div>
+        <MeetingStartButton
+            onNext={() => {
+                navigate(PATH.GROUP_VIDEO(Number(roomId)));
+            }}
+            isStart={isMeetingStart}
+            onClick={() => console.log('click')}
+        />
     );
 };
 
-export default GroupVideoLayout;
+export default VideoWaitPage;
 
 /* <div className="hidden">
                     {participants.map((participant) => (

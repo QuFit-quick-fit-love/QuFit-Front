@@ -54,26 +54,18 @@ const useRoom = () => {
             .filter((participant) => participant.gender === 'f')
             .sort((a, b) => a.id! - b.id!);
 
-        console.log('다른 성별의 세팅을 시작합니다.');
         if (member?.gender === 'm') {
             const currentUserIndex = maleParticipants.findIndex((participant) => participant.id === member?.memberId);
             const reorderedOtherParticipants = femaleParticipants
                 .slice(currentUserIndex)
                 .concat(femaleParticipants.slice(0, currentUserIndex));
             setOtherGenderParticipants(reorderedOtherParticipants);
-            console.log(reorderedOtherParticipants);
         } else if (member?.gender === 'f') {
-            console.log('남성참가자');
-            console.log(maleParticipants);
-            console.log('여성참가자');
-            console.log(femaleParticipants);
-
             const currentUserIndex = femaleParticipants.findIndex((participant) => participant.id === member?.memberId);
             const reorderedOtherParticipants = maleParticipants
                 .slice(currentUserIndex)
                 .concat(maleParticipants.slice(0, currentUserIndex));
             setOtherGenderParticipants(reorderedOtherParticipants);
-            console.log(reorderedOtherParticipants);
         }
     };
 
@@ -94,15 +86,13 @@ const useRoom = () => {
                     faceLandmarkerReady: !!faceLandmarker,
                     faceLandmarker: faceLandmarker,
                 });
-                // console.log(participants);
-                // console.log('원격참가자 참여');
-                // console.log(newParticipant);
             } catch (error) {
                 console.error('Error in addRoomEventHandler:', error);
             }
         });
     };
 
+    //방장을 정하려는 로직인듯? => createRoom 할때 쓸 것 같음.
     const decideManager = async (room: Room) => {
         await room.localParticipant.enableCameraAndMicrophone();
     };
@@ -142,8 +132,6 @@ const useRoom = () => {
                 faceLandmarker: faceLandmarker,
             });
 
-            console.log('createRoom 들어온 사람의 정보입니다.');
-            console.log(room.localParticipant);
             setRoom(room);
             moveURL(window.location.pathname, data.data.videoRoomId);
         } catch (error) {
@@ -153,14 +141,18 @@ const useRoom = () => {
 
     const joinRoom = async (videoRoomId: number) => {
         try {
-            const room = new Room(ROOM_SETTING);
-            const response = await postVideoJoin(videoRoomId);
-            await room.connect(LIVEKIT_URL, response.data.token);
-            setRoom(room);
-            const curParticipants: RoomParticipant[] = [];
+            const room = new Room(ROOM_SETTING); //각 참가자마다 자신의 room을 갖는거임.
+            const response = await postVideoJoin(videoRoomId); //새로운 참가자를 담아.
+            await room.connect(LIVEKIT_URL, response.data.token); //라이브킷 연결
+
+            setRoom(room); //room 상태 저장
+
+            const curParticipants: RoomParticipant[] = []; //여기에 새로운 참가자들을 담나?
+
             //remote사용자를 담는 과정
             try {
-                const response = await getVideoDetail(videoRoomId);
+                const response = await getVideoDetail(videoRoomId); //이러면 지금 들어가려는 사람까지 다 나오겠지?
+
                 Array.from(room.remoteParticipants.values()).forEach(async (participant) => {
                     const newParticipant = response.data.members.find(
                         (member: { id: number; gender: 'f' | 'm'; nickname: string }) =>
@@ -168,6 +160,7 @@ const useRoom = () => {
                     );
 
                     const faceLandmarker = await initializeFaceLandmarker();
+
                     curParticipants.push({
                         ...newParticipant,
                         info: participant,
@@ -180,8 +173,6 @@ const useRoom = () => {
                 console.log('Error fetching video details:', error);
             }
 
-            console.log('joinRoom으로 들어온 사람의 정보입니다.');
-            console.log(room.localParticipant);
             const faceLandmarker = await initializeFaceLandmarker();
             curParticipants.push({
                 id: member?.memberId,

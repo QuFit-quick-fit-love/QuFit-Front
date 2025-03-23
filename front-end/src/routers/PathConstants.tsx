@@ -11,7 +11,7 @@ export const PATH = {
     MY_PAGE: '/mypage',
     ADMIN: '/admin',
     GROUP_VIDEO: (roomId: number | string) => `/video/group/${roomId}`,
-    WAIT: (roomId: number | string) => `/video/wait/${roomId}`,
+    WAIT: (roomId: number | string) => `/video/group/wait/${roomId}`,
     PERSONAL_VIDEO: (roomId: number | string) => `/video/personal/${roomId}`,
 
     //카카오 소셜로그인 관련

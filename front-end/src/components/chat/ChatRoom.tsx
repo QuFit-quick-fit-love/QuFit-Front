@@ -299,7 +299,8 @@ const ChatRoom = ({ id, nickname, profileImage, refetch }: ChatRoomProps) => {
                         destination: `/pub/chat.enterRoom/${id}`,
                         body: JSON.stringify({ pageSize: 20 }),
                     });
-                    client.current?.subscribe(`/user/${senderId}/sub/chatroom.${id}`, (message) => {
+
+                    client.current?.subscribe(`/sub/chatroom." + chatRoomId`, (message) => {
                         if (message.body) {
                             const response = JSON.parse(message.body);
                             const messages = response.messages;
