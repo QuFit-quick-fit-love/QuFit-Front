@@ -1,86 +1,55 @@
-import { useRoomParticipantsStore, useSetRoomIdStore } from '@stores/video/roomStore';
-import useRoom from '@hooks/useRoom';
+import { useRoomParticipantsStore } from '@stores/video/roomStore';
 import ParticipantVideo from '@components/video/ParticipantVideo';
-import { useEffect, useRef, useState } from 'react';
-import { Outlet, useNavigate, useParams } from 'react-router-dom';
-
-import { afterSubscribe, connect, disConnect, publishSocket } from '@utils/websocketUtil';
-import * as StompJs from '@stomp/stompjs';
-import VideoChatBox from '@components/video/VideoChatBox';
+import { useEffect, useState } from 'react';
+import { Outlet, useParams } from 'react-router-dom';
+import useRoom from '@hooks/useRoom';
 
 const GroupVideoLayout = () => {
-    // const roomMax = useRoomMaxStore();
     const roomMax = 8;
-    const { otherGenderSetting } = useRoom();
-    const [isMeetingStart, setIsMeetingStart] = useState(false);
-    const participants = useRoomParticipantsStore();
+    const { joinRoom, leaveRoom, participants } = useRoom();
     const { roomId } = useParams();
-    const setRoomId = useSetRoomIdStore();
-    const navigate = useNavigate();
-
-    const client = useRef<StompJs.Client | null>(null);
-    // const onConnect = () => {
-    //     client.current?.subscribe(`/sub/game/${roomId}`, (message) => {
-    //         const response = JSON.parse(message.body);
-
-    //         afterSubscribe(response, '미팅룸 시작을 성공했습니다.', () => {
-    //             setIsMeetingStart(true);
-    //             otherGenderSetting();
-    //         });
-    //     });
-    // };
-
-    const startMeeting = () => {
-        publishSocket(
-            {
-                isRoomStart: true,
-            },
-            client,
-            Number(roomId),
-        );
-        // otherGenderSetting();
-    };
-    ``;
-
-    useEffect(() => {
-        setRoomId(Number(roomId)); //나중에 param에서 따와야함
-        // connect(client, onConnect);
-        return () => disConnect(client);
-    }, []);
     const [render, setRender] = useState(10);
     const [timerId, setTimerId] = useState<NodeJS.Timeout | null>(null);
 
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setRender((prev: number) => prev - 1);
+        }, 100);
+
+        setTimerId(timer);
+
+        return () => {
+            clearInterval(timer);
+        };
+    }, [participants]);
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setRender((prev: number) => prev - 1);
+        }, 100);
+
+        setTimerId(timer);
+
+        return () => {
+            clearInterval(timer);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (render === 0) {
+            if (timerId) {
+                clearInterval(timerId);
+                setTimerId(null);
+            }
+        }
+    }, [render]);
+
     // useEffect(() => {
-    //     const timer = setInterval(() => {
-    //         setRender((prev: number) => prev - 1);
-    //     }, 100);
-
-    //     setTimerId(timer);
-
-    //     return () => {
-    //         clearInterval(timer);
-    //     };
-    // }, [participants]);
-    // useEffect(() => {
-    //     const timer = setInterval(() => {
-    //         setRender((prev: number) => prev - 1);
-    //     }, 100);
-
-    //     setTimerId(timer);
-
-    //     return () => {
-    //         clearInterval(timer);
-    //     };
-    // }, []);
-
-    // useEffect(() => {
-    //     if (render === 0) {
-    //         if (timerId) {
-    //             clearInterval(timerId);
-    //             setTimerId(null);
-    //         }
+    //     async function reloadRoom() {
+    //         await leaveRoom(Number(roomId));
+    //         await joinRoom(Number(roomId));
     //     }
-    // }, [render]);
+    //     reloadRoom();
+    // }, []);
 
     return (
         <div className="flex flex-col justify-between h-screen">
@@ -91,7 +60,7 @@ const GroupVideoLayout = () => {
                 <div className="border w-[916px] max-w-[916px] h-[496px] flex flex-grow justify-center items-center">
                     <Outlet />
                 </div>
-                <VideoChatBox />
+                {/* <VideoChatBox /> */}
             </div>
             <div className="flex-shrink-0">
                 <ParticipantVideo participants={participants} roomMax={roomMax!} gender="f" status="wait" />

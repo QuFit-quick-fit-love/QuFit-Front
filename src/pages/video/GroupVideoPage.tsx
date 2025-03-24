@@ -1,16 +1,8 @@
-import { useOtherIdxStore, useSetOtherIdxStore, useSetRoomIdStore } from '@stores/video/roomStore';
 import useRoom from '@hooks/useRoom';
-import ParticipantVideo from '@components/video/ParticipantVideo';
 import { useEffect, useRef, useState } from 'react';
 import { useProblemsStore, useSetProblemsStore, useSetResultsStore } from '@stores/video/gameStore';
-import { useNavigate, useParams } from 'react-router-dom';
-import { instance } from '@apis/axios';
-import useTimer from '@hooks/useTimer';
-import useMember from '@hooks/useMember';
-import { PATH } from '@routers/PathConstants';
-import { GROUP_VIDEO_END_SEC } from '@components/game/Constants';
-import MoveRoomModal from '@modals/video/MoveRoomModal';
-import useModal from '@hooks/useModal';
+import { useParams } from 'react-router-dom';
+
 import Loading from '@components/game/step/Loading';
 import BalanceGame from '@components/game/step/BalanceGame';
 import GamePlay from '@components/game/step/GamePlay';
@@ -19,11 +11,6 @@ import GameEnd from '@components/game/step/GameEnd';
 import GameIntro from '@components/game/step/GameIntro';
 import { afterSubscribe, connect, disConnect, publishSocket } from '@utils/websocketUtil';
 import * as StompJs from '@stomp/stompjs';
-
-enum Gender {
-    FEMALE = 'f',
-    MALE = 'm',
-}
 
 type RoomStep =
     | 'active'
@@ -35,6 +22,7 @@ type RoomStep =
     | 'resultLoading2'
     | 'resultLoading3'
     | 'end';
+
 type beforeResult = {
     balanceGameChoiceId: number;
     balanceGameId: number;
@@ -45,38 +33,31 @@ type beforeResult = {
 };
 
 function GroupVideoPage() {
-    const roomMax = 8;
     const [roomStep, setRoomStep] = useState<RoomStep>('active');
-    const { createRoom, joinRoom, leaveRoom, participants, otherGenderParticipants } = useRoom();
+
     const [gameStage, setGameStage] = useState(-1);
-    const setRoomId = useSetRoomIdStore();
     const setResults = useSetResultsStore();
     const problems = useProblemsStore();
     const setProblems = useSetProblemsStore();
     const client = useRef<StompJs.Client | null>(null);
-    const { member } = useMember();
     const { roomId } = useParams();
     const [isMeeting, setIsMeeting] = useState(true);
+    const { isHost } = useRoom();
 
-    const otherIdx = useOtherIdxStore();
-    const setOtherIdx = useSetOtherIdxStore();
-
-    const handleConfirmModal = async () => {
-        if (member?.gender === Gender.MALE) {
-            const response = await instance.get(`qufit/video/recent`, {
-                params: { hostId: member.memberId },
-            });
-            navigate(PATH.PERSONAL_VIDEO(Number(response.data['videoRoomId: '])));
-        } else if (member?.gender === Gender.FEMALE) {
-            const response = await instance.get(`qufit/video/recent`, {
-                params: { hostId: otherGenderParticipants[0].id },
-            });
-            joinRoom(Number(response.data['videoRoomId: ']));
-            navigate(PATH.PERSONAL_VIDEO(Number(response.data['videoRoomId: '])));
-        }
-
-        setOtherIdx(otherIdx + 1);
-    };
+    // const handleConfirmModal = async () => {
+    //     if (member?.gender === Gender.MALE) {
+    //         const response = await instance.get(`qufit/video/recent`, {
+    //             params: { hostId: member.memberId },
+    //         });
+    //         navigate(PATH.PERSONAL_VIDEO(Number(response.data['videoRoomId: '])));
+    //     } else if (member?.gender === Gender.FEMALE) {
+    //         const response = await instance.get(`qufit/video/recent`, {
+    //             params: { hostId: otherGenderParticipants[0].id },
+    //         });
+    //         joinRoom(Number(response.data['videoRoomId: ']));
+    //         navigate(PATH.PERSONAL_VIDEO(Number(response.data['videoRoomId: '])));
+    //     }
+    // };
     const onConnect = () => {
         client.current?.subscribe(`/sub/game/${roomId}`, (message) => {
             const response = JSON.parse(message.body);
@@ -106,8 +87,6 @@ function GroupVideoPage() {
             });
         });
     };
-    const navigate = useNavigate();
-    const { isHost } = useRoom();
 
     const startGame = () => {
         publishSocket(
@@ -147,40 +126,21 @@ function GroupVideoPage() {
     };
 
     useEffect(() => {
-        setRoomId(Number(roomId));
         connect(client, onConnect);
         return () => disConnect(client);
     }, []);
-    const { open, close, Modal } = useModal();
-    const restSec = useTimer(GROUP_VIDEO_END_SEC, () => {
-        leaveRoom(Number(roomId));
-        if (member?.gender === 'm') {
-            createRoom({
-                videoRoomName: '개인방',
-                maxParticipants: 2,
-                mainTag: '',
-                videoRoomHobbies: [],
-                videoRoomPersonalities: [],
-            });
-        }
-        setIsMeeting(false);
-        open();
-    });
 
     return (
         <>
-            <Modal>
+            {/* <Modal>
                 <MoveRoomModal
                     onClose={close}
                     onClick={handleConfirmModal}
                     message={'단체 미팅이 종료되었습니다. 다음 방으로 이동해주세요.'}
                 />
-            </Modal>
+            </Modal> */}
             {isMeeting && (
                 <div className="flex flex-col justify-between w-full h-screen">
-                    <div className="flex justify-center">
-                        <ParticipantVideo roomMax={roomMax!} gender="m" status="meeting" participants={participants} />
-                    </div>
                     {/* 중앙에 위치한 게임 관련 콘텐츠 */}
                     <div className="flex flex-col items-center justify-center flex-grow py-4">
                         {roomStep === 'active' && <GameIntro onNext={startGame} />}
@@ -231,12 +191,9 @@ function GroupVideoPage() {
                                 onNext={startPlay}
                             />
                         )}
-                        {roomStep === 'end' && <GameEnd restSec={restSec} />}
+                        {roomStep === 'end' && <GameEnd restSec={30000} />}
                     </div>
                     {/* 하단에 위치한 ParticipantVideo */}
-                    <div className="flex justify-center">
-                        <ParticipantVideo roomMax={roomMax!} gender="f" status="meeting" participants={participants} />
-                    </div>
                 </div>
             )}
         </>

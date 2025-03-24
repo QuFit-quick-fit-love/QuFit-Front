@@ -74,12 +74,14 @@ function VideoComponent({
     participantOrder,
 }: VideoComponentProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const [isCameraEnable, setIsCameraEnable] = useState(status === 'meeting');
     const [isMicEnable, setIsMicEnable] = useState(true);
+    const room = useRoomStateStore();
+
     const maskPositionRef = useRef(new THREE.Vector3());
     const maskRotationRef = useRef(new THREE.Euler());
     const [avatar, setAvatar] = useState<Avatar | null>(null);
-    const room = useRoomStateStore();
-    const [isCameraEnable, setIsCameraEnable] = useState(status === 'meeting');
+
     const [isMaskReady, setIsMaskReady] = useState(false); // 가면 준비 상태
 
     useEffect(() => {
@@ -97,7 +99,6 @@ function VideoComponent({
                     newAvatar.loader.manager.onLoad = () => {
                         setIsMaskReady(true);
                     };
-                    
 
                     const interval = setInterval(() => {
                         if (
@@ -144,7 +145,12 @@ function VideoComponent({
                                     }
                                 }
                             } catch (error) {
-                                console.error('VideoComponent: 얼굴 인식 에러 - 참가자 이름:', participateName, ':', error);
+                                console.error(
+                                    'VideoComponent: 얼굴 인식 에러 - 참가자 이름:',
+                                    participateName,
+                                    ':',
+                                    error,
+                                );
                             }
                         }
                     }, 50);
@@ -207,8 +213,15 @@ function VideoComponent({
             <div className="absolute top-0 left-0 w-full h-full -z-10">
                 {isCameraEnable || !local ? (
                     <>
-                        <div className={`relative w-full h-full ${isMaskReady ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}>
-                            <video ref={videoRef} className="absolute top-0 left-0 w-full h-full object-cover rounded-xl" />
+                        <div
+                            className={`relative w-full h-full ${
+                                isMaskReady ? 'opacity-100' : 'opacity-0'
+                            } transition-opacity duration-500`}
+                        >
+                            <video
+                                ref={videoRef}
+                                className="absolute top-0 left-0 object-cover w-full h-full rounded-xl"
+                            />
                             <Canvas style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
                                 <ambientLight intensity={0.5} />
                                 <pointLight position={[10, 10, 10]} />
@@ -216,13 +229,13 @@ function VideoComponent({
                             </Canvas>
                         </div>
                         {!isMaskReady && (
-                            <div className="absolute top-0 left-0 w-full h-full bg-gray-800 flex items-center justify-center">
+                            <div className="absolute top-0 left-0 flex items-center justify-center w-full h-full bg-gray-800">
                                 <p className="text-white">Loading....</p>
                             </div>
                         )}
                     </>
                 ) : (
-                    <div className="absolute top-0 left-0 w-full h-full bg-white opacity-40 rounded-xl flex items-center justify-center">
+                    <div className="absolute top-0 left-0 flex items-center justify-center w-full h-full bg-white opacity-40 rounded-xl">
                         <CameraOffIcon
                             width={'10rem'}
                             className="absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
@@ -232,8 +245,6 @@ function VideoComponent({
             </div>
         </div>
     );
-    
 }
-
 
 export default VideoComponent;

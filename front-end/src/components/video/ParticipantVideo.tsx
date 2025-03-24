@@ -16,20 +16,17 @@ const ParticipantVideo = ({ roomMax, gender, status, participants }: Participant
     const { hostId } = useRoom();
 
     return (
-        <div className="flex justify-center w-full gap-2 h-full"> {/* 높이를 100%로 설정 */}
+        <div className="flex justify-center w-full h-full gap-2">
+            {/* 높이를 100%로 설정 */}
             {participants.map((participant, index) => {
                 if (participant.gender === gender) {
                     const videoTrack =
                         participant.info!.videoTrackPublications.values().next().value?.videoTrack || undefined;
-    
+
                     if (!videoTrack) {
-                        console.warn(
-                            'ParticipantVideo: 비디오 트랙이 설정되지 않았습니다 - 참가자 이름:',
-                            participant.nickname,
-                        );
                         return null;
                     }
-    
+
                     numPeople++;
                     return (
                         <div
@@ -64,9 +61,6 @@ const ParticipantVideo = ({ roomMax, gender, status, participants }: Participant
                 ))}
         </div>
     );
-    
-    
-    
 };
 
 export default ParticipantVideo;

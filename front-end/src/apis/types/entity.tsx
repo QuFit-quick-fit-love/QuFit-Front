@@ -10,3 +10,8 @@ export interface Location {
     id: number;
     Si: string;
 }
+
+export enum Gender {
+    FEMALE = 'f',
+    MALE = 'm',
+}

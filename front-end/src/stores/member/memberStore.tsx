@@ -1,3 +1,4 @@
+import { Gender } from '@apis/types/entity';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 type Member = {
@@ -6,7 +7,7 @@ type Member = {
     nickname: string;
     location: string;
     birthYear: number;
-    gender: 'm' | 'f' | undefined;
+    gender: Gender | undefined;
     bio: string;
     profileImage: string;
     memberMBTITag: string;

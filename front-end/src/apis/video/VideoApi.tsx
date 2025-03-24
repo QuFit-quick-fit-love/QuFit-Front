@@ -1,7 +1,29 @@
 import { END_POINT } from '@apis/ApiConstants';
 import { instance } from '@apis/axios';
+import { Gender } from '@apis/types/entity';
 import { VideoRoomRequest } from '@apis/types/request';
 import { useMutation, useQuery } from '@tanstack/react-query';
+type Member = {
+    id: number;
+    gender: Gender;
+    nickname: string;
+};
+
+type VideoDetailResponse = {
+    createdAt: string; // ISO Date String
+    curMCount: number;
+    curWCount: number;
+    hostId: number;
+    mainTag: string;
+    maxParticipants: number;
+    members: Member[];
+    participantHobbies: string[];
+    participantPersonalities: string[];
+    videoRoomHobby: string[];
+    videoRoomId: number;
+    videoRoomName: string;
+    videoRoomPersonality: string[];
+};
 
 export const getVideo = async (page: number, size: number, statusType: number) => {
     return await instance.get(END_POINT.VIDEO, { params: { page: page, size: size, statusType: statusType } });
@@ -12,7 +34,7 @@ export const postVideo = async (videoRoom: VideoRoomRequest) => {
 };
 
 export const getVideoDetail = async (videoRoomId: number) => {
-    return await instance.get(END_POINT.VIDEO_DETAIL(videoRoomId));
+    return await instance.get<VideoDetailResponse>(END_POINT.VIDEO_DETAIL(videoRoomId));
 };
 
 export const putVideoDetail = async (videoRoomId: number, videoRoom: VideoRoomRequest) => {
