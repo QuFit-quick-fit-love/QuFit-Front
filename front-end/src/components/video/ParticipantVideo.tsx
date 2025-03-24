@@ -21,7 +21,7 @@ const ParticipantVideo = ({ roomMax, gender, status, participants }: Participant
             {participants.map((participant, index) => {
                 if (participant.gender === gender) {
                     const videoTrack =
-                        participant.info!.videoTrackPublications.values().next().value?.videoTrack || undefined;
+                        participant.info?.videoTrackPublications.values().next().value?.videoTrack || undefined;
 
                     if (!videoTrack) {
                         return null;
